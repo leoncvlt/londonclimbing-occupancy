@@ -1,0 +1,29 @@
+name: Continuous Integration
+on:
+  schedule:
+    # Runs "at minute 55 past every hour" (see https://crontab.guru)
+    - cron: '00 * * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    # Build steps
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '12' 
+    - name: Node Install
+      run: npm ci
+    - name: Node Run
+      run: npm start
+
+    # Commit and push all changed files.
+    - name: GIT Commit Build Artifacts (coverage, dist, devdist, docs)
+      # Only run on main branch push (e.g. after pull request merge).
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Updated scraped data"
+        git push
